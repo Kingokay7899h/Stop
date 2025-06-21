@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condemnation Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .notification { display: none; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: white; font-weight: bold; }
+        .notification.success { background-color: #28a745; }
+        .notification.error { background-color: #dc3545; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Condemnation Form</h1>
+        <div id="notification" class="notification"></div>
+        <form id="condemnationForm">
+            <div id="items" class="form-group">
+                <label for="items_list">Items:</label>
+                <select id="items_list" multiple style="width: 100%; height: 100px;"></select>
+            </div>
+            <div class="form-group">
+                <label for="weight">Weight:</label>
+                <input type="text" id="weight">
+            </div>
+            <div class="form-group">
+                <label for="book_value">Book Value:</label>
+                <input type="number" step="0.01" id="book_value" readonly>
+            </div>
+            <div class="form-group">
+                <label for="purchase_date">Purchase Date:</label>
+                <input type="date" id="purchase_date" readonly>
+            </div>
+            <div class="form-group">
+                <label for="unserviceable_date">Unserviceable Date:</label>
+                <input type="date" id="unserviceable_date">
+            </div>
+            <div class="form-group">
+                <label for="condemnation_reason">Reason for Condemnation:</label>
+                <textarea id="condemnation_reason"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea id="remarks"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sr_nos = urlParams.get('sr_nos') ? urlParams.get('sr_nos').split(',') : [];
+            const reason = urlParams.get('reason') || '';
+            const requestId = urlParams.get('id');
+
+            if (requestId) {
+                $.ajax({
+                    url: 'fetch_disposal_form.php',
+                    type: 'GET',
+                    data: { id: requestId },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.error) {
+                            showNotification(data.error, 'error');
+                            return;
+                        }
+                        data.items.forEach(item => {
+                            $('#items_list').append(`<option value="${item.item_id}">${item.description}</option>`);
+                            $('#book_value').val(item.book_value);
+                            $('#purchase_date').val(item.purchase_date);
+                            $('#unserviceable_date').val(item.unserviceable_date || '');
+                            $('#condemnation_reason').val(item.condemnation_reason);
+                            $('#remarks').val(item.remarks);
+                        });
+                    },
+                    error: function() {
+                        showNotification('Failed to load form data', 'error');
+                    }
+                });
+            } else if (sr_nos.length > 0) {
+                $.ajax({
+                    url: 'fetch_item_details.php',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ sr_nos: sr_nos }),
+                    success: function(data) {
+                        data.forEach(item => {
+                            $('#items_list').append(`<option value="${item.sr_no}">${item.name_of_item} (${item.item_specification})</option>`);
+                            if (sr_nos.length === 1) {
+                                $('#book_value').val(item.price);
+                                $('#purchase_date').val(item.date);
+                                $('#condemnation_reason').val(reason);
+                            }
+                        });
+                    },
+                    error: function() {
+                        showNotification('Failed to load item details', 'error');
+                    }
+                });
+            }
+
+            $('#condemnationForm').submit(function(e) {
+                e.preventDefault();
+                const items = [];
+                $('#items_list option').each(function() {
+                    items.push({
+                        item_id: $(this).val(),
+                        weight: $('#weight').val(),
+                        book_value: $('#book_value').val(),
+                        purchase_date: $('#purchase_date').val(),
+                        unserviceable_date: $('#unserviceable_date').val(),
+                        condemnation_reason: $('#condemnation_reason').val(),
+                        remarks: $('#remarks').val()
+                    });
+                });
+                const data = {
+                    requestId: requestId || Date.now(),
+                    items: items,
+                    status: 'Pending Stores'
+                };
+                $.ajax({
+                    url: 'submit_condemnation_form.php',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showNotification('Form submitted successfully', 'success');
+                            setTimeout(() => window.location.href = 'disposal.html', 2000);
+                        } else {
+                            showNotification(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        showNotification('Failed to submit form', 'error');
+                    }
+                });
+            });
+
+            function showNotification(message, type) {
+                const notification = $('#notification');
+                notification.html(message).removeClass('success error').addClass(type).show();
+                setTimeout(() => notification.hide(), 10000);
+            }
+        });
+    </script>
+</body>
+</html>

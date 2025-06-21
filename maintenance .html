@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Management</title>
+    <link rel="stylesheet" href="maintenance.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>DAMS</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="maintenance.html" class="active">Maintenance</a></li>
+            <li><a href="disposal.html">Disposal</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <h1>Maintenance Management</h1>
+        <div class="table-container">
+            <h2>Maintenance Records</h2>
+            <div class="loading" id="maintenanceLoading">Loading...</div>
+            <table id="maintenanceTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>SR No</th>
+                        <th>Item Name</th>
+                        <th>Specification</th>
+                        <th>Procurement Date</th>
+                        <th>Cost</th>
+                        <th>Last Maintenance</th>
+                        <th>Maintenance Due</th>
+                        <th>Service Provider</th>
+                        <th>Lab Name</th>
+                        <th>Category</th>
+                        <th>Disposal Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h2>Maintenance Alerts</h2>
+            <div class="loading" id="alertLoading">Loading...</div>
+            <table id="alertTable">
+                <thead>
+                    <tr>
+                        <th>SR No</th>
+                        <th>Item Name</th>
+                        <th>Specification</th>
+                        <th>Last Maintenance</th>
+                        <th>Maintenance Due</th>
+                        <th>Service Provider</th>
+                        <th>Lab Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="actions">
+            <button id="updateMaintenance">Update Maintenance</button>
+            <button id="sendDisposalRequest">Send Disposal Request</button>
+        </div>
+    </div>
+
+    <!-- Modal for updating maintenance -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Update Maintenance</h2>
+            <form id="maintenanceForm">
+                <input type="hidden" id="sr_no">
+                <label for="last_maintenance">Last Maintenance Date:</label>
+                <input type="date" id="last_maintenance" required>
+                <label for="maintainence_due">Maintenance Due Date:</label>
+                <input type="date" id="maintainence_due" required>
+                <label for="service_provider">Service Provider:</label>
+                <input type="text" id="service_provider">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for disposal reason -->
+    <div id="disposalModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Disposal Request</h2>
+            <form id="disposalForm">
+                <label for="disposal_reason">Reason for Disposal:</label>
+                <textarea id="disposal_reason" required></textarea>
+                <button type="submit">Proceed</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <script src="maintenance.js"></script>
+</body>
+</html>

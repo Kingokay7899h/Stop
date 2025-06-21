@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disposal Management</title>
+    <link rel="stylesheet" href="disposal.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>DAMS</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="maintenance.html">Maintenance</a></li>
+            <li><a href="disposal.html" class="active">Disposal</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <h1>Disposal Management</h1>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="pending">Pending Disposals</button>
+            <button class="tab-button" data-tab="rejected">Rejected Disposals</button>
+            <button class="tab-button" data-tab="past">Past Disposals</button>
+        </div>
+        <div class="tab-content active" id="pending">
+            <h2>Pending Disposals</h2>
+            <div class="loading" id="pendingLoading">Loading...</div>
+            <table id="pending_disposal_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Item Name</th>
+                        <th>Specification</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="tab-content" id="rejected" style="display: none;">
+            <h2>Rejected Disposals</h2>
+            <div class="loading" id="rejectedLoading">Loading...</div>
+            <table id="rejected_disposal_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Item Name</th>
+                        <th>Specification</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="tab-content" id="past" style="display: none;">
+            <h2>Past Disposals</h2>
+            <div class="loading" id="pastLoading">Loading...</div>
+            <table id="past_disposal_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Item Name</th>
+                        <th>Specification</th>
+                        <th>Reason</th>
+                        <th>Disposed At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Review Disposal</h2>
+            <form id="reviewForm">
+                <input type="hidden" id="requestId">
+                <label>
+                    <input type="radio" name="action" value="approve" required> Approve
+                </label>
+                <label>
+                    <input type="radio" name="action" value="reject" required> Reject
+                </label>
+                <label for="rejection_reason">Rejection Reason (if applicable):</label>
+                <textarea id="rejection_reason"></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <script src="disposal.js"></script>
+</body>
+</html>
